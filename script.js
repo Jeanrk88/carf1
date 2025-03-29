@@ -6,6 +6,7 @@ let mergedHorsesGeometry = null;
 let mapScene, mapCamera, mapRenderer, carDot, trackLine;
 let scene, camera, renderer, car, clock, speedometerElement;
 let controls = { forward: false, backward: false, left: false, right: false };
+let joystickLeft, joystickRight;
 
 // --- Configurações do jogo ---
 let carSpeed = 0;
@@ -120,7 +121,6 @@ function setupAudio() {
 
             audioReady = true;
             startButton.style.display = 'none';
-            document.getElementById('touch-capture').style.pointerEvents = 'auto';
         } catch (error) {
             console.error("Failed to initialize audio:", error);
             startButton.textContent = "Audio Error";
@@ -991,63 +991,56 @@ function setupControls() {
     });
 
     // Touch
-    const touchCaptureArea = document.getElementById('touch-capture');
-    touchCaptureArea.style.pointerEvents = 'none';
+    if (window.innerWidth <= 768) { // Só cria joysticks em mobile
 
-    function handleTouchStart(event) { 
-        event.preventDefault(); 
-        processTouches(event.touches); 
-    }
-    
-    function handleTouchMove(event) { 
-        event.preventDefault(); 
-        processTouches(event.touches); 
-    }
-    
-    function handleTouchEnd(event) {
-        event.preventDefault();
-        if (event.touches.length === 0) resetTouchControls();
-        else processTouches(event.touches);
-    }
-    
-    function resetTouchControls() { 
-        controls.forward = false; 
-        controls.backward = false; 
-        controls.left = false; 
-        controls.right = false; 
-    }
-
-    function processTouches(touches) {
-        resetTouchControls();
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
-        const bottomAreaHeight = screenHeight * 0.3;
-
-        for (let i = 0; i < touches.length; i++) {
-            const touch = touches[i];
-            const touchX = touch.clientX;
-            const touchY = touch.clientY;
-
-            if (touchY > screenHeight - bottomAreaHeight) {
-                if (touchY > screenHeight - bottomAreaHeight / 2) {
-                    controls.backward = true;
-                } else {
-                    controls.forward = true;
-                }
-
-                if (touchX < screenWidth / 2) {
-                    controls.left = true;
-                } else {
-                    controls.right = true;
-                }
-            }
+        if (document.getElementById('joystickLeft')) {
+            document.getElementById('joystickLeft').style.pointerEvents = 'auto';
         }
-    }
+        // Configuração do Joystick Esquerdo
+        joystickLeft = nipplejs.create({
+            zone: document.getElementById('joystickLeft'),
+            mode: 'static',
+            position: { left: '50%', top: '50%' },
+            color: 'rgba(255,255,255,0.5)',
+            size: 100
+        });
 
-    touchCaptureArea.addEventListener('touchstart', handleTouchStart, { passive: false });
-    touchCaptureArea.addEventListener('touchmove', handleTouchMove, { passive: false });
-    touchCaptureArea.addEventListener('touchend', handleTouchEnd, { passive: false });
-    touchCaptureArea.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+        // Configuração do Joystick Direito
+        joystickRight = nipplejs.create({
+            zone: document.getElementById('joystickRight'),
+            mode: 'static',
+            position: { left: '50%', top: '50%' },
+            color: 'rgba(255,255,255,0.5)',
+            size: 100
+        });
+  
+        // Eventos do Acelerador/Freio
+        joystickLeft.on('move', (evt, data) => {
+            const force = Math.min(data.force, 2);
+            if(data.direction?.y === 'up') {
+                controls.forward = force;
+                controls.backward = false;
+            } else {
+                controls.backward = force;
+                controls.forward = false;
+            }
+        }).on('end', () => {
+            controls.forward = false;
+            controls.backward = false;
+        });
+
+        // Eventos da Direção
+        joystickRight.on('move', (evt, data) => {
+            const angle = data.angle.radian;
+            const intensity = Math.min(data.force, 1.5);
+        
+            controls.left = angle > Math.PI/2 && angle < (3*Math.PI)/2;
+            controls.right = !controls.left;
+        }).on('end', () => {
+            controls.left = false;
+            controls.right = false;
+        });
+    } 
 }
 
 // --- Detecção de colisão ---
