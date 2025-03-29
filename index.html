@@ -5,6 +5,8 @@
     <title>CarF1</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="https://carf1.jeankist.com/faviconcarf1.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 
 <body>
@@ -26,8 +28,10 @@
 
     <button id="start-button">Start Engine</button>
 
-    <!-- Touch capture area (Functional) -->
-    <div id="touch-capture"></div>
+    <div class="controls-container">
+        <div id="joystickLeft" class="joy-div"></div>
+        <div id="joystickRight" class="joy-div"></div>
+    </div>
 
     <script type="importmap">
         {
