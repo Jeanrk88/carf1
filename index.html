@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CarF1</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="racing-dashboard">
+        <div class="rpm-gauge">
+            <div class="rpm-bar"></div>
+            <div class="rpm-text">RPM</div>
+        </div>
+        <div class="gear-display">N</div>
+        <div class="speed-display">
+            <span class="speed-number">0</span>
+            <span class="speed-unit">km/h</span>
+        </div>
+    </div>
+
+    <div class="map-container">
+        <div class="map-viewport" id="map-viewport"></div>
+    </div>
+
+    <button id="start-button">Start Engine</button>
+
+    <!-- Touch capture area (Functional) -->
+    <div id="touch-capture"></div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
